@@ -72,7 +72,7 @@ public final class Manager {
      */
     private Manager(Context context) {
         this.context = context;
-        createDefaultChannel();
+        // createDefaultChannel();
     }
 
     /**
