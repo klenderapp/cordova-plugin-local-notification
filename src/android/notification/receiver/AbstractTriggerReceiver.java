@@ -57,7 +57,7 @@ abstract public class AbstractTriggerReceiver extends BroadcastReceiver {
             return;
 
         Builder builder    = new Builder(options);
-        Notification toast = buildNotification(builder, bundle);
+        Notification toast = buildNotification(builder, bundle, options);
 
         if (toast == null)
             return;
@@ -80,6 +80,7 @@ abstract public class AbstractTriggerReceiver extends BroadcastReceiver {
      * @param bundle  The bundled extras.
      */
     abstract public Notification buildNotification (Builder builder,
-                                                    Bundle bundle);
+                                                    Bundle bundle,
+                                                    Options options);
 
 }
