@@ -44,6 +44,8 @@ import de.appplant.cordova.plugin.notification.util.AssetUtil;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static de.appplant.cordova.plugin.notification.Notification.EXTRA_UPDATE;
 
+import org.json.JSONObject;
+
 /**
  * Builder class for local notifications. Build fully configured local
  * notification specified by JSON object passed from JS side.
@@ -64,6 +66,9 @@ public final class Builder {
 
     // Activity to handle the click event
     private Class<?> clickActivity;
+
+    // Activity to handle the click event
+    private Class<?> fullScreenActivity;
 
     // Additional extras to merge into each intent
     private Bundle extras;
@@ -95,6 +100,11 @@ public final class Builder {
      */
     public Builder setClickActivity(Class<?> activity) {
         this.clickActivity = activity;
+        return this;
+    }
+
+    public Builder setFullScreenActivity(Class<?> activity) {
+        this.fullScreenActivity = activity;
         return this;
     }
 
@@ -176,6 +186,7 @@ public final class Builder {
         applyActions(builder);
         applyDeleteReceiver(builder);
         applyContentReceiver(builder);
+        applyFullScreenReceiver(builder);
 
         return new Notification(context, options, builder);
     }
@@ -409,6 +420,38 @@ public final class Builder {
 
         }
         builder.setContentIntent(contentIntent);
+    }
+
+    private void applyFullScreenReceiver(NotificationCompat.Builder builder) {
+
+        if (fullScreenActivity == null)
+            return;
+
+        String eventId = null;
+        JSONObject dataDict = options.getDict().optJSONObject("data");
+        if (dataDict != null && dataDict.has("eventId")) {
+            eventId = dataDict.optString("eventId");
+        }
+
+        Intent intent = new Intent(context, fullScreenActivity)
+                .putExtra("notification_id", options.getId())
+                .putExtra("notification_title", options.getText())
+                .putExtra("event_id", eventId)
+                .putExtra("alarm", true);
+
+        int reqCode = random.nextInt();
+
+        PendingIntent fullScreenIntent ;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            fullScreenIntent = PendingIntent.getActivity(
+                context, reqCode, intent, PendingIntent.FLAG_IMMUTABLE | FLAG_UPDATE_CURRENT);
+        } else {
+            fullScreenIntent  = PendingIntent.getActivity(
+                context, reqCode, intent, FLAG_UPDATE_CURRENT);
+
+        }
+        builder.setCategory(NotificationCompat.CATEGORY_ALARM);
+        builder.setFullScreenIntent(fullScreenIntent, true);
     }
 
     /**
