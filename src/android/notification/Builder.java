@@ -428,16 +428,22 @@ public final class Builder {
             return;
 
         String eventId = null;
+        boolean intrusiveAlarm = false;
         JSONObject dataDict = options.getDict().optJSONObject("data");
-        if (dataDict != null && dataDict.has("eventId")) {
-            eventId = dataDict.optString("eventId");
+        if (dataDict != null) {
+            if (dataDict.has("eventId")) {
+                eventId = dataDict.optString("eventId");
+            }
+            if (dataDict.has("intrusiveAlarm")) {
+                intrusiveAlarm = dataDict.optBoolean("intrusiveAlarm");
+            }
         }
 
         Intent intent = new Intent(context, fullScreenActivity)
                 .putExtra("notification_id", options.getId())
                 .putExtra("notification_title", options.getText())
                 .putExtra("event_id", eventId)
-                .putExtra("alarm", true);
+                .putExtra("intrusive_alarm", intrusiveAlarm);
 
         int reqCode = random.nextInt();
 
